@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dave-Co Event Voting</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <style>
+    body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: #0b1016; height: 100vh; display: flex; user-select: none; touch-action: manipulation; overflow: hidden; }
+    .side { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; transition: all 0.3s; touch-action: manipulation; }
+    .side.left { background: radial-gradient(circle at top left, #635496, #1E3668); border-right: 2px solid #000; }
+    .side.right { background: radial-gradient(circle at top right, #4e317a, #1E3668); border-left: 2px solid #000; }
+
+    /* The SVG Icon Box */
+    .icon-display { width: 80px; height: 80px; margin-bottom: 20px; fill: rgba(255,255,255,0.8); pointer-events: none; }
+
+    h2 { margin: 0 0 20px 0; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); pointer-events: none; text-align: center; padding: 0 10px; }
+    .hit-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: pointer; }
+    .hit-area:active { background: rgba(255,255,255,0.1); }
+
+    /* LOCK SCREEN OVERLAY */
+    #lockOverlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(11, 16, 22, 0.95); z-index: 100;
+      display: none; flex-direction: column; justify-content: center; align-items: center;
+      color: #e6ddf8; text-align: center;
+    }
+    #lockOverlay h1 { font-size: 2.5rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 10px rgba(139, 85, 214, 0.5); }
+    #lockOverlay p { font-size: 1.2rem; opacity: 0.8; padding: 0 20px; }
+    .lock-icon { width: 60px; height: 60px; margin-bottom: 20px; fill: #8b55d6; }
+  </style>
+</head>
+<body>
+
+  <div class="side left">
+    <div class="hit-area" onclick="castVote('left')"></div>
+    <div class="icon-display" id="voteIconLeft"></div>
+    <h2>Safety, Respect<br>& Culture</h2>
+  </div>
+
+  <div class="side right">
+    <div class="hit-area" onclick="castVote('right')"></div>
+    <div class="icon-display" id="voteIconRight"></div>
+    <h2>Leadership, Progression<br>& Power</h2>
+  </div>
+
+  <div id="lockOverlay">
+    <svg class="lock-icon" viewBox="0 0 100 100">
+      <rect x="25" y="45" width="50" height="40" rx="5" />
+      <path d="M 35 45 V 30 A 15 15 0 0 1 65 30 V 45" fill="none" stroke="#8b55d6" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="50" cy="65" r="5" fill="#0b1016"/>
+    </svg>
+    <h1>Vote Registered</h1>
+    <p>Please look at the main screen for the live verdict.</p>
+  </div>
+
+  <script type="module">
+    import { scaleRef, update, increment, onValue } from './firebase-config.js';
+
+    // The Lockout Check: If they voted before, show the lock screen instantly.
+    if (localStorage.getItem('daveCoVoted') === 'true') {
+      document.getElementById('lockOverlay').style.display = 'flex';
+    }
+
+    const iconLibrary = {
+      none: '',
+      brick: `<svg viewBox="0 0 100 60"><rect x="5" y="5" width="90" height="50" rx="4"/><line x1="5" y1="30" x2="95" y2="30" stroke="#1E3668" stroke-width="4"/><line x1="50" y1="5" x2="50" y2="30" stroke="#1E3668" stroke-width="4"/><line x1="25" y1="30" x2="25" y2="55" stroke="#1E3668" stroke-width="4"/><line x1="75" y1="30" x2="75" y2="55" stroke="#1E3668" stroke-width="4"/></svg>`,
+      house: `<svg viewBox="0 0 100 100"><path d="M 50 15 L 15 50 L 25 50 L 25 90 L 75 90 L 75 50 L 85 50 Z"/><rect x="40" y="60" width="20" height="30" fill="#1E3668"/></svg>`,
+      hardhat: `<svg viewBox="0 0 100 80"><path d="M 15 60 Q 15 20 50 20 Q 85 20 85 60 L 95 60 L 95 70 L 5 70 L 5 60 Z"/><path d="M 40 20 L 60 20 L 60 10 L 40 10 Z"/></svg>`,
+      clipboard: `<svg viewBox="0 0 100 100"><rect x="25" y="15" width="50" height="75" rx="5"/><rect x="35" y="5" width="30" height="15" rx="3" fill="#1E3668"/><line x1="35" y1="40" x2="65" y2="40" stroke="#1E3668" stroke-width="4" stroke-linecap="round"/><line x1="35" y1="55" x2="65" y2="55" stroke="#1E3668" stroke-width="4" stroke-linecap="round"/><line x1="35" y1="70" x2="50" y2="70" stroke="#1E3668" stroke-width="4" stroke-linecap="round"/></svg>`,
+      crane: `<svg viewBox="0 0 100 100"><rect x="20" y="10" width="12" height="90"/><polygon points="10,10 90,10 80,25 32,25"/><line x1="75" y1="25" x2="75" y2="60" stroke="rgba(255,255,255,0.8)" stroke-width="3"/><path d="M75 60 v10 a 8 8 0 0 0 16 0" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="4"/></svg>`
+    };
+
+    onValue(scaleRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      const config = data.config || {};
+      document.getElementById('voteIconLeft').innerHTML = iconLibrary[config.iconLeft || 'none'];
+      document.getElementById('voteIconRight').innerHTML = iconLibrary[config.iconRight || 'none'];
+    });
+
+    window.castVote = function(side) {
+      // Secondary check so they can't spam the button before it locks
+      if (localStorage.getItem('daveCoVoted') === 'true') return;
+
+      // Register the vote
+      const updates = {};
+      updates[side] = increment(1);
+      update(scaleRef, updates);
+
+      // Lock them out
+      localStorage.setItem('daveCoVoted', 'true');
+      document.getElementById('lockOverlay').style.display = 'flex';
+    };
+  </script>
+</body>
+</html>
