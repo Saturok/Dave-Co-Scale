@@ -1,49 +1,87 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>DAVECO CONTROL PANEL - ADMIN</title>
+  <title>DAVE-CO INDUSTRIES - ADMIN</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
-    body { background-color: #000; color: #33ff00; font-family: 'VT323', monospace; margin: 0; padding: 20px; height: 100vh; overflow-y: auto; text-transform: uppercase; }
-    body::before { content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); z-index: 2; background-size: 100% 2px, 3px 100%; pointer-events: none; }
-    h1 { border-bottom: 2px solid #33ff00; padding-bottom: 10px; text-shadow: 0 0 10px #33ff00; font-size: 2.5rem; margin-top: 0; }
-    .panel-box { border: 2px solid #33ff00; padding: 15px; margin-bottom: 20px; box-shadow: 0 0 15px rgba(51, 255, 0, 0.2); background: rgba(0, 20, 0, 0.8); position: relative; z-index: 10;}
-    label { display: block; font-size: 1.5rem; margin-bottom: 10px; }
-    input[type=range] { width: 100%; accent-color: #33ff00; height: 20px; background: #111; border: 1px solid #33ff00; }
-    input[type=number], select { background: #000; color: #33ff00; border: 2px solid #33ff00; font-family: 'VT323', monospace; font-size: 1.5rem; padding: 5px; width: 100%; text-align: center; margin-bottom: 10px;}
+    @import url('https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap');
+    
+    :root {
+      --wisteria-light: #e6ddf8;
+      --wisteria-mid: #8b55d6;
+      --wisteria-dark: #5e309c;
+      --bg-color: #0b0a1a;
+    }
+
+    body { background-color: var(--bg-color); color: var(--wisteria-light); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; height: 100vh; overflow-y: auto; text-transform: uppercase; font-weight: bold; }
+    
+    h1 { border-bottom: 2px solid var(--wisteria-mid); padding-bottom: 10px; color: var(--wisteria-light); font-size: 2rem; margin-top: 0; text-shadow: 0 0 10px rgba(139, 85, 214, 0.5); }
+    .panel-box { border: 2px solid var(--wisteria-mid); border-radius: 8px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(94, 48, 156, 0.3); background: rgba(30, 20, 50, 0.8); }
+    h2 { margin-top: 0; font-size: 1.2rem; color: var(--wisteria-mid); letter-spacing: 1px; }
+    
+    label { display: block; font-size: 1rem; margin-bottom: 10px; color: #a394c9; }
+    input[type=range] { width: 100%; accent-color: var(--wisteria-mid); height: 15px; background: #111; border-radius: 5px; }
+    input[type=number], select { background: rgba(0,0,0,0.5); color: var(--wisteria-light); border: 2px solid var(--wisteria-dark); font-family: 'Segoe UI', sans-serif; font-size: 1.2rem; font-weight: bold; padding: 8px; width: 100%; text-align: center; border-radius: 4px; margin-bottom: 10px;}
     input[type=number] { width: 80px; }
-    .value-readout { float: right; }
+    
+    .value-readout { float: right; color: var(--wisteria-light); }
     .btn-group { display: flex; gap: 10px; margin-top: 10px; }
-    button { background: #000; color: #33ff00; border: 2px solid #33ff00; font-family: 'VT323', monospace; font-size: 1.5rem; padding: 10px 20px; cursor: pointer; flex: 1; transition: 0.2s; text-transform: uppercase; }
-    button:hover { background: #33ff00; color: #000; box-shadow: 0 0 15px #33ff00; }
+    
+    button { background: var(--bg-color); color: var(--wisteria-light); border: 2px solid var(--wisteria-mid); border-radius: 4px; font-family: 'Segoe UI', sans-serif; font-size: 1.2rem; font-weight: bold; padding: 10px 20px; cursor: pointer; flex: 1; transition: 0.2s; text-transform: uppercase; }
+    button:hover { background: var(--wisteria-mid); color: #fff; box-shadow: 0 0 15px var(--wisteria-mid); }
     button:active { transform: translateY(2px); }
-    .danger-zone { border-color: #ff3333; color: #ff3333; }
-    .danger-zone h2 { color: #ff3333; border-bottom-color: #ff3333; text-shadow: 0 0 5px #ff3333; }
+    
+    .danger-zone { border-color: #ff3333; }
+    .danger-zone h2 { color: #ff3333; }
     .btn-danger { border-color: #ff3333; color: #ff3333; }
-    .btn-danger:hover { background: #ff3333; color: #000; box-shadow: 0 0 15px #ff3333; }
-    .status-line { margin-top: 10px; font-size: 1.2rem; opacity: 0.8; }
+    .btn-danger:hover { background: #ff3333; color: #fff; box-shadow: 0 0 15px #ff3333; }
+    
+    /* FIREWORKS BUTTON */
+    .btn-fireworks { background: linear-gradient(45deg, #8b55d6, #e6ddf8); color: #000; border: none; padding: 15px; font-size: 1.5rem; text-shadow: none; box-shadow: 0 0 15px rgba(230, 221, 248, 0.5); }
+    .btn-fireworks:hover { filter: brightness(1.2); color: #000; }
+
     .input-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
   </style>
 </head>
 <body>
 
-  <h1>DAVE-CO INDUSTRIES <br> UNIFIED OPERATING SYSTEM</h1>
+  <h1>DAVE-CO INDUSTRIES <br> COMMAND CENTER</h1>
 
   <div class="panel-box">
-    <h2 style="margin-top:0;">> PHYSICS PARAMETERS</h2>
-    <div style="margin-bottom: 20px;">
-      <label>SENSITIVITY <span id="disp_sens" class="value-readout">5</span></label>
-      <input type="range" min="1" max="20" id="in_sens" oninput="updateConfig()">
+    <h2>> SPECIAL EVENT FX</h2>
+    <button class="btn-fireworks" onclick="launchFireworks()">LAUNCH FIREWORKS</button>
+  </div>
+
+  <div class="panel-box">
+    <h2>> MANUAL SCORE OVERRIDE</h2>
+    <div class="input-row">
+      <label>LEFT SIDE:</label>
+      <input type="number" id="manualLeft" placeholder="0">
+      <button onclick="setScore('left')">SET</button>
     </div>
-    <div>
-      <label>MAX TILT ANGLE <span id="disp_tilt" class="value-readout">25</span></label>
-      <input type="range" min="5" max="45" id="in_tilt" oninput="updateConfig()">
+    <div class="input-row">
+      <label>RIGHT SIDE:</label>
+      <input type="number" id="manualRight" placeholder="0">
+      <button onclick="setScore('right')">SET</button>
     </div>
   </div>
 
   <div class="panel-box">
-    <h2 style="margin-top:0;">> VISUAL REFERENCES</h2>
+    <h2>> QUICK ADJUST (+/-)</h2>
+    <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size: 1.5rem;">
+      <span>L-SIDE: <strong id="scoreL" style="color:var(--wisteria-mid);">0</strong></span>
+      <span>R-SIDE: <strong id="scoreR" style="color:var(--wisteria-mid);">0</strong></span>
+    </div>
+    <div class="btn-group">
+      <button onclick="mod('left', -1)">L -1</button>
+      <button onclick="mod('left', 1)">L +1</button>
+      <button onclick="mod('right', -1)">R -1</button>
+      <button onclick="mod('right', 1)">R +1</button>
+    </div>
+  </div>
+
+  <div class="panel-box">
+    <h2>> VISUAL REFERENCES</h2>
     <div class="input-row">
       <div style="flex:1; padding-right:10px;">
         <label>LEFT DISH:</label>
@@ -66,13 +104,24 @@
           <option value="clipboard">Clipboard</option>
           <option value="crane">Crane</option>
         </select>
-        </select>
       </div>
     </div>
   </div>
 
   <div class="panel-box">
-    <h2 style="margin-top:0;">> ENVIRONMENTAL FX</h2>
+    <h2>> PHYSICS PARAMETERS</h2>
+    <div style="margin-bottom: 20px;">
+      <label>SENSITIVITY <span id="disp_sens" class="value-readout">5</span></label>
+      <input type="range" min="1" max="20" id="in_sens" oninput="updateConfig()">
+    </div>
+    <div>
+      <label>MAX TILT ANGLE <span id="disp_tilt" class="value-readout">25</span></label>
+      <input type="range" min="5" max="45" id="in_tilt" oninput="updateConfig()">
+    </div>
+  </div>
+
+  <div class="panel-box">
+    <h2>> BACKGROUND PETALS</h2>
     <div style="margin-bottom: 20px;">
       <label>SPAWN RATE (ms) <span id="disp_spawn" class="value-readout">1200</span></label>
       <input type="range" min="200" max="4000" step="100" id="in_spawn" oninput="updateConfig()">
@@ -83,22 +132,8 @@
     </div>
   </div>
 
-  <div class="panel-box">
-    <h2 style="margin-top:0;">> QUICK ADJUST (+/-)</h2>
-    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-      <span>L-SIDE: <strong id="scoreL">0</strong></span>
-      <span>R-SIDE: <strong id="scoreR">0</strong></span>
-    </div>
-    <div class="btn-group">
-      <button onclick="mod('left', -1)">L -1</button>
-      <button onclick="mod('left', 1)">L +1</button>
-      <button onclick="mod('right', -1)">R -1</button>
-      <button onclick="mod('right', 1)">R +1</button>
-    </div>
-  </div>
-
   <div class="panel-box danger-zone">
-    <h2 style="margin-top:0;">> DANGER ZONE</h2>
+    <h2>> DANGER ZONE</h2>
     <button class="btn-danger" onclick="nukeIt()">INITIATE RESET PROTOCOL</button>
   </div>
 
@@ -118,7 +153,6 @@
       document.getElementById('in_fall').value = config.petalFall || 15;
       document.getElementById('disp_fall').innerText = config.petalFall || 15;
       
-      // Update Dropdowns
       document.getElementById('sel_iconLeft').value = config.iconLeft || 'none';
       document.getElementById('sel_iconRight').value = config.iconRight || 'none';
 
@@ -137,15 +171,32 @@
       });
     }
 
+    // Set Exact Scores
+    window.setScore = function(side) {
+      const inputId = side === 'left' ? 'manualLeft' : 'manualRight';
+      const val = parseInt(document.getElementById(inputId).value);
+      if (!isNaN(val)) {
+        const updates = {};
+        updates[side] = val; 
+        update(scaleRef, updates);
+        document.getElementById(inputId).value = '';
+      }
+    }
+
     window.mod = function(side, val) {
       const updates = {}; updates[side] = increment(val); update(scaleRef, updates);
+    }
+
+    // FIREWORKS TRIGGER (Uses timestamp to guarantee a state change)
+    window.launchFireworks = function() {
+      update(scaleRef, { "config/fireworks": Date.now() });
     }
 
     window.nukeIt = function() {
       if(confirm(">> WARNING <<\n\nCONFIRM SYSTEM WIPE?")) {
         set(scaleRef, { 
           left: 0, right: 0,
-          config: { sensitivity: 5, maxTilt: 25, petalSpawn: 1200, petalFall: 15, iconLeft: 'none', iconRight: 'none' }
+          config: { sensitivity: 5, maxTilt: 25, petalSpawn: 1200, petalFall: 15, iconLeft: 'none', iconRight: 'none', fireworks: 0 }
         });
       }
     }
