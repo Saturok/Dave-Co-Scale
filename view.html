@@ -22,24 +22,18 @@
     @keyframes fall { 0% { top: -10%; } 100% { top: 110%; } }
     @keyframes drift { 0% { transform: translateX(0) rotate(0deg); } 100% { transform: translateX(80px) rotate(180deg); } }
 
-  /* PERFECT CENTERING ANCHOR - Moved to top: 40% to fill empty space */
+    /* NEW FIREWORKS SPARK CSS */
+    .spark { position: absolute; width: 8px; height: 8px; border-radius: 50%; pointer-events: none; z-index: 50; box-shadow: 0 0 10px currentColor; }
+
     .scale-wrapper { 
       position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); 
       width: 600px; height: 600px; z-index: 10; 
     }
     
-    /* STALK IS NOW TALLER (350px height) */
     .stand { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 200px; height: 350px; }
     .stand svg { width: 100%; height: 100%; overflow: visible; }
 
-    /* BEAM LOCKED TO NEW PIVOT HEIGHT */
     #beamGroup { position: absolute; bottom: 335px; left: 50%; width: 0; height: 0; transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 5; }
-    
-    .stand { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 200px; height: 250px; }
-    .stand svg { width: 100%; height: 100%; overflow: visible; }
-
-    /* BEAM LOCKED TO PIVOT */
-    #beamGroup { position: absolute; bottom: 235px; left: 50%; width: 0; height: 0; transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 5; }
     .beam-svg-container { position: absolute; top: -50px; left: -300px; width: 600px; height: 100px; }
 
     .pan-assembly { position: absolute; top: 0; width: 0; height: 0; transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
@@ -47,7 +41,6 @@
     .pan-assembly.right { left: 260px; }
     .pan-svg-container { position: absolute; top: 0; left: -100px; width: 200px; height: 250px; }
 
-    /* CONTENT BOXES */
     .content-box { 
       position: absolute; top: 70px; left: -90px; width: 180px; height: 130px; 
       display: flex; flex-direction: column; align-items: center; justify-content: flex-end; z-index: 10; 
@@ -63,8 +56,7 @@
   <div id="petal-container"></div>
 
   <div class="scale-wrapper">
-    
-<div class="stand">
+    <div class="stand">
       <svg viewBox="0 0 100 350" preserveAspectRatio="none">
         <path d="M 10 340 Q 50 320 90 340 L 90 350 L 10 350 Z" fill="var(--scale-dark)"/>
         <line x1="50" y1="340" x2="50" y2="15" stroke="var(--scale-color)" stroke-width="12" stroke-linecap="round"/>
@@ -127,7 +119,6 @@
     const scoreLeft = document.getElementById('scoreLeft');
     const scoreRight = document.getElementById('scoreRight');
     
-    // THE SVG ICON LIBRARY
     const iconLibrary = {
       none: '',
       brick: `<svg viewBox="0 0 100 60"><rect x="5" y="5" width="90" height="50" rx="4" fill="var(--wisteria-1)"/><line x1="5" y1="30" x2="95" y2="30" stroke="var(--bg-dark)" stroke-width="4"/><line x1="50" y1="5" x2="50" y2="30" stroke="var(--bg-dark)" stroke-width="4"/><line x1="25" y1="30" x2="25" y2="55" stroke="var(--bg-dark)" stroke-width="4"/><line x1="75" y1="30" x2="75" y2="55" stroke="var(--bg-dark)" stroke-width="4"/></svg>`,
@@ -137,13 +128,21 @@
       crane: `<svg viewBox="0 0 100 100"><rect x="20" y="10" width="12" height="90" fill="var(--wisteria-1)"/><polygon points="10,10 90,10 80,25 32,25" fill="var(--wisteria-1)"/><line x1="75" y1="25" x2="75" y2="60" stroke="var(--wisteria-1)" stroke-width="3"/><path d="M75 60 v10 a 8 8 0 0 0 16 0" fill="none" stroke="var(--wisteria-1)" stroke-width="4"/></svg>`
     };
 
-    let currentConfig = { sensitivity: 5, maxTilt: 25, petalSpawn: 1200, petalFall: 15, iconLeft: 'none', iconRight: 'none' };
+    let currentConfig = { sensitivity: 5, maxTilt: 25, petalSpawn: 1200, petalFall: 15, iconLeft: 'none', iconRight: 'none', fireworks: 0 };
+    let localFireworksState = 0;
 
     onValue(scaleRef, (snapshot) => {
       const data = snapshot.val() || {};
-      if (data.config) currentConfig = data.config;
+      if (data.config) {
+        currentConfig = data.config;
+        
+        // CHECK FOR FIREWORKS TRIGGER
+        if (currentConfig.fireworks && currentConfig.fireworks > localFireworksState) {
+          if (localFireworksState !== 0) { fireworkShow(); }
+          localFireworksState = currentConfig.fireworks;
+        }
+      }
       
-      // Inject Icons
       document.getElementById('iconLeft').innerHTML = iconLibrary[currentConfig.iconLeft || 'none'];
       document.getElementById('iconRight').innerHTML = iconLibrary[currentConfig.iconRight || 'none'];
 
@@ -162,6 +161,50 @@
       if(beam) beam.style.transform = `rotate(${angle}deg)`;
       if(panLeft) panLeft.style.transform = `rotate(${-angle}deg)`;
       if(panRight) panRight.style.transform = `rotate(${-angle}deg)`;
+    }
+
+    // THE FIREWORKS ENGINE
+    function fireworkShow() {
+      const fContainer = document.createElement('div');
+      fContainer.style.position = 'absolute'; fContainer.style.top = '0'; fContainer.style.left = '0';
+      fContainer.style.width = '100%'; fContainer.style.height = '100%';
+      fContainer.style.overflow = 'hidden'; fContainer.style.pointerEvents = 'none'; fContainer.style.zIndex = '50';
+      document.body.appendChild(fContainer);
+
+      const fwColors = ['#e6ddf8', '#80a2df', '#8b55d6', '#d4af37', '#ffffff'];
+      
+      // 4 randomized bursts
+      for(let b = 0; b < 4; b++) {
+        setTimeout(() => {
+          const originX = 20 + Math.random() * 60; // 20vw to 80vw
+          const originY = 10 + Math.random() * 40; // 10vh to 50vh
+          
+          for(let i = 0; i < 60; i++) {
+            const spark = document.createElement('div');
+            spark.classList.add('spark');
+            const color = fwColors[Math.floor(Math.random() * fwColors.length)];
+            spark.style.background = color;
+            spark.style.color = color; // for box-shadow
+            spark.style.left = originX + 'vw'; spark.style.top = originY + 'vh';
+            fContainer.appendChild(spark);
+            
+            const angle = Math.random() * Math.PI * 2;
+            const velocity = 2 + Math.random() * 15;
+            const tx = Math.cos(angle) * velocity * 8;
+            const ty = Math.sin(angle) * velocity * 8 + 15; // +15 gives it a gravity drop
+            
+            spark.animate([
+              { transform: `translate(0, 0) scale(1.5)`, opacity: 1 },
+              { transform: `translate(${tx}vw, ${ty}vh) scale(0)`, opacity: 0 }
+            ], {
+              duration: 1200 + Math.random() * 800,
+              easing: 'cubic-bezier(0, .9, .57, 1)',
+              fill: 'forwards'
+            });
+          }
+        }, b * 500); // Stagger bursts by 500ms
+      }
+      setTimeout(() => fContainer.remove(), 4000); // Cleanup DOM
     }
 
     // PETAL SYSTEM
