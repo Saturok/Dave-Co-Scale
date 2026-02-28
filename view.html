@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dave-Co Scale - Event View</title>
+  <style>
+    :root {
+      --scale-color: #8b55d6; 
+      --scale-dark: #5e309c;
+      --wisteria-1: #e6ddf8;
+      --wisteria-2: #80a2df;
+      --wisteria-3: #635496;
+      --wisteria-4: #4e317a;
+      --wisteria-5: #171e60;
+      --bg-dark: #120e2b;
+      --bg-light: #2b2257;
+    }
+
+    body { margin: 0; background: radial-gradient(circle at center, var(--bg-light), var(--bg-dark)); font-family: 'Segoe UI', serif; overflow: hidden; height: 100vh; color: white; }
+
+    #petal-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; pointer-events: none; }
+    .petal { position: absolute; top: -10%; border-radius: 50% 0 50% 50%; opacity: 0.6; box-shadow: 0 0 10px rgba(230, 221, 248, 0.2); }
+    @keyframes fall { 0% { top: -10%; } 100% { top: 110%; } }
+    @keyframes drift { 0% { transform: translateX(0) rotate(0deg); } 100% { transform: translateX(80px) rotate(180deg); } }
+
+    /* PERFECT CENTERING ANCHOR */
+    .scale-wrapper { 
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+      width: 600px; height: 500px; z-index: 10; 
+    }
+    
+    .stand { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 200px; height: 250px; }
+    .stand svg { width: 100%; height: 100%; overflow: visible; }
+
+    /* BEAM LOCKED TO PIVOT */
+    #beamGroup { position: absolute; bottom: 235px; left: 50%; width: 0; height: 0; transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 5; }
+    .beam-svg-container { position: absolute; top: -50px; left: -300px; width: 600px; height: 100px; }
+
+    .pan-assembly { position: absolute; top: 0; width: 0; height: 0; transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .pan-assembly.left { left: -260px; } 
+    .pan-assembly.right { left: 260px; }
+    .pan-svg-container { position: absolute; top: 0; left: -100px; width: 200px; height: 250px; }
+
+    /* CONTENT BOXES */
+    .content-box { 
+      position: absolute; top: 70px; left: -90px; width: 180px; height: 130px; 
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-end; z-index: 10; 
+    }
+    
+    .item-icon { width: 50px; height: 50px; margin-bottom: 5px; fill: var(--wisteria-1); }
+    .score { font-size: 3.5rem; font-weight: bold; line-height: 1; color: white; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+    .label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--wisteria-1); font-weight: bold; text-align: center; line-height: 1.2; margin-top: 5px; }
+  </style>
+</head>
+<body>
+
+  <div id="petal-container"></div>
+
+  <div class="scale-wrapper">
+    
+    <div class="stand">
+      <svg viewBox="0 0 100 250" preserveAspectRatio="none">
+        <path d="M 10 240 Q 50 220 90 240 L 90 250 L 10 250 Z" fill="var(--scale-dark)"/>
+        <line x1="50" y1="240" x2="50" y2="15" stroke="var(--scale-color)" stroke-width="12" stroke-linecap="round"/>
+        <circle cx="50" cy="15" r="15" fill="var(--scale-dark)"/>
+      </svg>
+    </div>
+
+    <div id="beamGroup">
+      <div class="beam-svg-container">
+        <svg viewBox="0 0 600 100">
+          <path d="M 40 50 Q 170 20 300 50 Q 430 20 560 50" fill="none" stroke="var(--scale-color)" stroke-width="18" stroke-linecap="round"/>
+          <circle cx="300" cy="50" r="10" fill="var(--bg-dark)" stroke="var(--scale-color)" stroke-width="6"/>
+          <circle cx="40" cy="50" r="8" fill="var(--scale-dark)"/>
+          <circle cx="560" cy="50" r="8" fill="var(--scale-dark)"/>
+        </svg>
+      </div>
+      
+      <div class="pan-assembly left" id="panLeft">
+        <div class="pan-svg-container">
+          <svg viewBox="0 0 200 250">
+            <line x1="100" y1="0" x2="30" y2="180" stroke="var(--scale-color)" stroke-width="3"/>
+            <line x1="100" y1="0" x2="100" y2="180" stroke="var(--scale-color)" stroke-width="3"/>
+            <line x1="100" y1="0" x2="170" y2="180" stroke="var(--scale-color)" stroke-width="3"/>
+            <path d="M 10 180 Q 100 240 190 180 Z" fill="var(--scale-color)"/>
+            <path d="M 10 180 Q 100 195 190 180 Q 100 165 10 180 Z" fill="var(--scale-dark)"/> 
+          </svg>
+        </div>
+        <div class="content-box">
+          <div class="item-icon" id="iconLeft"></div>
+          <div class="score" id="scoreLeft">0</div>
+          <div class="label">Safety, Respect<br>& Culture</div>
+        </div>
+      </div>
+
+      <div class="pan-assembly right" id="panRight">
+        <div class="pan-svg-container">
+          <svg viewBox="0 0 200 250">
+            <line x1="100" y1="0" x2="30" y2="180" stroke="var(--scale-color)" stroke-width="3"/>
+            <line x1="100" y1="0" x2="100" y2="180" stroke="var(--scale-color)" stroke-width="3"/>
+            <line x1="100" y1="0" x2="170" y2="180" stroke="var(--scale-color)" stroke-width="3"/>
+            <path d="M 10 180 Q 100 240 190 180 Z" fill="var(--scale-color)"/>
+            <path d="M 10 180 Q 100 195 190 180 Q 100 165 10 180 Z" fill="var(--scale-dark)"/>
+          </svg>
+        </div>
+        <div class="content-box">
+          <div class="item-icon" id="iconRight"></div>
+          <div class="score" id="scoreRight">0</div>
+          <div class="label">Leadership, Progression<br>& Power</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { scaleRef, onValue } from './firebase-config.js';
+
+    const beam = document.getElementById('beamGroup');
+    const panLeft = document.getElementById('panLeft');
+    const panRight = document.getElementById('panRight');
+    const scoreLeft = document.getElementById('scoreLeft');
+    const scoreRight = document.getElementById('scoreRight');
+    
+    // THE SVG ICON LIBRARY
+    const iconLibrary = {
+      none: '',
+      brick: `<svg viewBox="0 0 100 60"><rect x="5" y="5" width="90" height="50" rx="4" fill="var(--wisteria-1)"/><line x1="5" y1="30" x2="95" y2="30" stroke="var(--bg-dark)" stroke-width="4"/><line x1="50" y1="5" x2="50" y2="30" stroke="var(--bg-dark)" stroke-width="4"/><line x1="25" y1="30" x2="25" y2="55" stroke="var(--bg-dark)" stroke-width="4"/><line x1="75" y1="30" x2="75" y2="55" stroke="var(--bg-dark)" stroke-width="4"/></svg>`,
+      house: `<svg viewBox="0 0 100 100"><path d="M 50 15 L 15 50 L 25 50 L 25 90 L 75 90 L 75 50 L 85 50 Z" fill="var(--wisteria-1)"/><rect x="40" y="60" width="20" height="30" fill="var(--bg-dark)"/></svg>`,
+      hardhat: `<svg viewBox="0 0 100 80"><path d="M 15 60 Q 15 20 50 20 Q 85 20 85 60 L 95 60 L 95 70 L 5 70 L 5 60 Z" fill="var(--wisteria-1)"/><path d="M 40 20 L 60 20 L 60 10 L 40 10 Z" fill="var(--wisteria-1)"/></svg>`
+    };
+
+    let currentConfig = { sensitivity: 5, maxTilt: 25, petalSpawn: 1200, petalFall: 15, iconLeft: 'none', iconRight: 'none' };
+
+    onValue(scaleRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      if (data.config) currentConfig = data.config;
+      
+      // Inject Icons
+      document.getElementById('iconLeft').innerHTML = iconLibrary[currentConfig.iconLeft || 'none'];
+      document.getElementById('iconRight').innerHTML = iconLibrary[currentConfig.iconRight || 'none'];
+
+      updateView(data);
+    });
+
+    function updateView(state) {
+      const left = state.left || 0; const right = state.right || 0;
+      if(scoreLeft) scoreLeft.textContent = left;
+      if(scoreRight) scoreRight.textContent = right;
+
+      const diff = right - left;
+      const curve = Math.tanh(diff * (currentConfig.sensitivity / 100)); 
+      const angle = curve * currentConfig.maxTilt;
+
+      if(beam) beam.style.transform = `rotate(${angle}deg)`;
+      if(panLeft) panLeft.style.transform = `rotate(${-angle}deg)`;
+      if(panRight) panRight.style.transform = `rotate(${-angle}deg)`;
+    }
+
+    // PETAL SYSTEM
+    const petalContainer = document.getElementById('petal-container');
+    const colors = ['#e6ddf8', '#80a2df', '#635496', '#4e317a', '#171e60']; 
+    let petalTimer;
+
+    function createPetal() {
+      const petal = document.createElement('div');
+      petal.classList.add('petal');
+      petal.style.left = Math.random() * 100 + 'vw';
+      petal.style.background = colors[Math.floor(Math.random() * colors.length)];
+      const size = Math.random() * 12 + 8; 
+      petal.style.width = `${size}px`; petal.style.height = `${size}px`;
+      const fallBase = currentConfig.petalFall || 15;
+      const fallDuration = Math.random() * 10 + fallBase; 
+      const driftDuration = Math.random() * 6 + 4;
+      petal.style.animation = `fall ${fallDuration}s linear forwards, drift ${driftDuration}s ease-in-out infinite alternate`;
+      petalContainer.appendChild(petal);
+      setTimeout(() => { if(petal.parentNode) petal.remove(); }, fallDuration * 1000);
+    }
+
+    function loopPetals() {
+      createPetal();
+      clearTimeout(petalTimer);
+      petalTimer = setTimeout(loopPetals, currentConfig.petalSpawn || 1200);
+    }
+
+    loopPetals();
+    for(let i=0; i<15; i++) { setTimeout(createPetal, Math.random() * 5000); }
+  </script>
+</body>
+</html>

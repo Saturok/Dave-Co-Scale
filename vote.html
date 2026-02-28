@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vote Now</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin:0; padding:20px; font-family: sans-serif; background: #eee; text-align: center; }
+    h1 { color: #1E3668; margin-bottom: 30px; }
+    
+    .btn {
+      display: block; width: 100%; padding: 20px; margin: 15px 0;
+      font-size: 1.5rem; font-weight: bold; border: none; border-radius: 10px; color: white;
+      cursor: pointer; transition: transform 0.1s, opacity 0.2s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.5; cursor: wait; }
+
+    .btn-left { background: #1E3668; }
+    .btn-right { background: #F09222; }
+
+    .status { margin-top: 20px; color: #666; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+  <h1>Cast Your Vote</h1>
+
+  <button class="btn btn-left" id="btnLeft" onclick="castVote('left')">Vote Option 1</button>
+  <button class="btn btn-right" id="btnRight" onclick="castVote('right')">Vote Option 2</button>
+
+  <div class="status" id="statusMsg">Tap a button to vote!</div>
+
+  <script type="module">
+    import { db, scaleRef, update, increment } from './firebase-config.js';
+
+    window.castVote = function(side) {
+      const btnL = document.getElementById('btnLeft');
+      const btnR = document.getElementById('btnRight');
+      const msg = document.getElementById('statusMsg');
+
+      // 1. Send +1 to the cloud (using atomic increment to prevent glitches)
+      const updates = {};
+      updates[side] = increment(1);
+      update(scaleRef, updates);
+
+      // 2. Feedback for user
+      msg.textContent = "Vote Sent!";
+      
+      // 3. Cooldown (prevent spam)
+      btnL.disabled = true;
+      btnR.disabled = true;
+      setTimeout(() => {
+        btnL.disabled = false;
+        btnR.disabled = false;
+        msg.textContent = "Vote again?";
+      }, 2000);
+    }
+  </script>
+</body>
+</html>

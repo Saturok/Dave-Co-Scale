@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dave-Co Control</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <style>
+    body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: #0b1016; height: 100vh; display: flex; user-select: none; touch-action: manipulation; }
+    .side { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; transition: filter 0.1s; touch-action: manipulation; }
+    .side:active { filter: brightness(1.2); }
+    .side.left { background: radial-gradient(circle at top left, #635496, #1E3668); border-right: 2px solid #000; }
+    .side.right { background: radial-gradient(circle at top right, #4e317a, #1E3668); border-left: 2px solid #000; }
+
+    /* The SVG Icon Box */
+    .icon-display { width: 80px; height: 80px; margin-bottom: 20px; fill: rgba(255,255,255,0.8); pointer-events: none; }
+
+    h2 { margin: 0 0 20px 0; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); pointer-events: none; text-align: center; }
+    .count { font-size: 8rem; font-weight: 800; color: white; margin: 0; line-height: 1; pointer-events: none; }
+    .hit-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <div class="side left">
+    <div class="hit-area" onclick="vote('left')"></div>
+    <div class="icon-display" id="ctrlIconLeft"></div>
+    <h2>Safety, Respect & Culture</h2>
+    <div class="count" id="leftDisplay">...</div>
+  </div>
+
+  <div class="side right">
+    <div class="hit-area" onclick="vote('right')"></div>
+    <div class="icon-display" id="ctrlIconRight"></div>
+    <h2>Leadership, Progression & Power</h2>
+    <div class="count" id="rightDisplay">...</div>
+  </div>
+
+  <script type="module">
+    import { scaleRef, update, increment, onValue } from './firebase-config.js';
+
+    const iconLibrary = {
+      none: '',
+      brick: `<svg viewBox="0 0 100 60"><rect x="5" y="5" width="90" height="50" rx="4"/><line x1="5" y1="30" x2="95" y2="30" stroke="#1E3668" stroke-width="4"/><line x1="50" y1="5" x2="50" y2="30" stroke="#1E3668" stroke-width="4"/><line x1="25" y1="30" x2="25" y2="55" stroke="#1E3668" stroke-width="4"/><line x1="75" y1="30" x2="75" y2="55" stroke="#1E3668" stroke-width="4"/></svg>`,
+      house: `<svg viewBox="0 0 100 100"><path d="M 50 15 L 15 50 L 25 50 L 25 90 L 75 90 L 75 50 L 85 50 Z"/><rect x="40" y="60" width="20" height="30" fill="#1E3668"/></svg>`,
+      hardhat: `<svg viewBox="0 0 100 80"><path d="M 15 60 Q 15 20 50 20 Q 85 20 85 60 L 95 60 L 95 70 L 5 70 L 5 60 Z"/><path d="M 40 20 L 60 20 L 60 10 L 40 10 Z"/></svg>`
+    };
+
+    onValue(scaleRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      document.getElementById("leftDisplay").textContent = data.left || 0;
+      document.getElementById("rightDisplay").textContent = data.right || 0;
+      
+      const config = data.config || {};
+      document.getElementById('ctrlIconLeft').innerHTML = iconLibrary[config.iconLeft || 'none'];
+      document.getElementById('ctrlIconRight').innerHTML = iconLibrary[config.iconRight || 'none'];
+    });
+
+    window.vote = function(side) {
+      const updates = {};
+      updates[side] = increment(1);
+      update(scaleRef, updates);
+    };
+  </script>
+</body>
+</html>
