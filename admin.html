@@ -1,33 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>DAVE-CO - ADMIN</title>
+  <title>DAVE-CO INDUSTRIES - ADMIN</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
     
     :root {
-      /* Wisteria Purple CRT Glow */
       --term-color: #8b55d6; 
       --term-glow: rgba(139, 85, 214, 0.5);
       --term-bg: #000;
     }
 
-    body { 
-      background-color: var(--term-bg); color: var(--term-color); 
-      font-family: 'VT323', monospace; margin: 0; padding: 20px; 
-      height: 100vh; overflow-y: auto; text-transform: uppercase; 
-    }
-    
-    /* CRT Scanline Effect */
-    body::before { 
-      content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0; 
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); 
-      z-index: 2; background-size: 100% 2px, 3px 100%; pointer-events: none; 
-    }
+    body { background-color: var(--term-bg); color: var(--term-color); font-family: 'VT323', monospace; margin: 0; padding: 20px; height: 100vh; overflow-y: auto; text-transform: uppercase; }
+    body::before { content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); z-index: 2; background-size: 100% 2px, 3px 100%; pointer-events: none; }
     
     h1 { border-bottom: 2px solid var(--term-color); padding-bottom: 10px; text-shadow: 0 0 10px var(--term-color); font-size: 2.5rem; margin-top: 0; }
-    
     .panel-box { border: 2px solid var(--term-color); padding: 15px; margin-bottom: 20px; box-shadow: 0 0 15px var(--term-glow); background: rgba(20, 10, 30, 0.8); position: relative; z-index: 10;}
     h2 { margin-top: 0; font-size: 1.5rem; text-shadow: 0 0 5px var(--term-color); }
     
@@ -43,27 +31,33 @@
     button:hover { background: var(--term-color); color: #000; box-shadow: 0 0 15px var(--term-color); text-shadow: none; }
     button:active { transform: translateY(2px); }
     
-    /* DANGER ZONE */
     .danger-zone { border-color: #ff3333; color: #ff3333; box-shadow: 0 0 15px rgba(255, 51, 51, 0.3); }
     .danger-zone h2 { color: #ff3333; border-bottom-color: #ff3333; text-shadow: 0 0 5px #ff3333; }
     .btn-danger { border-color: #ff3333; color: #ff3333; text-shadow: 0 0 5px #ff3333; box-shadow: 0 0 5px rgba(255, 51, 51, 0.3); }
     .btn-danger:hover { background: #ff3333; color: #000; box-shadow: 0 0 15px #ff3333; text-shadow: none; }
     
-    /* FIREWORKS BUTTON */
     .btn-fireworks { background: var(--term-color); color: #000; text-shadow: none; box-shadow: 0 0 15px var(--term-color); font-weight: bold; font-size: 1.8rem; }
     .btn-fireworks:hover { background: #fff; color: #000; box-shadow: 0 0 25px #fff; border-color: #fff; }
 
-    .status-line { margin-top: 10px; font-size: 1.2rem; opacity: 0.8; }
+    /* UNLOCK BUTTON */
+    .btn-unlock { background: #80a2df; color: #000; border-color: #80a2df; text-shadow: none; box-shadow: 0 0 15px rgba(128, 162, 223, 0.5); }
+    .btn-unlock:hover { background: #fff; border-color: #fff; box-shadow: 0 0 25px #fff; }
+
     .input-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
   </style>
 </head>
 <body>
 
-  <h1>DAVE-CO INDUSTRIES <br> CONTROL PANEL </h1>
+  <h1>DAVE-CO INDUSTRIES <br> CONTROL CENTER</h1>
 
   <div class="panel-box">
     <h2>> SPECIAL EVENT FX</h2>
     <button class="btn-fireworks" onclick="launchFireworks()">LAUNCH FIREWORKS</button>
+  </div>
+
+  <div class="panel-box">
+    <h2>> CROWD CONTROL</h2>
+    <button class="btn-unlock" onclick="unlockVoting()">UNLOCK AUDIENCE PHONES</button>
   </div>
 
   <div class="panel-box">
@@ -190,9 +184,7 @@
       const inputId = side === 'left' ? 'manualLeft' : 'manualRight';
       const val = parseInt(document.getElementById(inputId).value);
       if (!isNaN(val)) {
-        const updates = {};
-        updates[side] = val; 
-        update(scaleRef, updates);
+        const updates = {}; updates[side] = val; update(scaleRef, updates);
         document.getElementById(inputId).value = '';
       }
     }
@@ -201,20 +193,24 @@
       const updates = {}; updates[side] = increment(val); update(scaleRef, updates);
     }
 
-    // FIREWORKS TRIGGER (Uses timestamp to guarantee a state change)
     window.launchFireworks = function() {
       update(scaleRef, { "config/fireworks": Date.now() });
+    }
+
+    // UNLOCK VOTING TRIGGER
+    window.unlockVoting = function() {
+      update(scaleRef, { "config/votingRound": Date.now() });
+      alert("Audience phones have been unlocked!");
     }
 
     window.nukeIt = function() {
       if(confirm(">> WARNING <<\n\nCONFIRM SYSTEM WIPE?")) {
         set(scaleRef, { 
           left: 0, right: 0,
-          config: { sensitivity: 5, maxTilt: 25, petalSpawn: 1200, petalFall: 15, iconLeft: 'none', iconRight: 'none', fireworks: 0 }
+          config: { sensitivity: 5, maxTilt: 25, petalSpawn: 1200, petalFall: 15, iconLeft: 'none', iconRight: 'none', fireworks: 0, votingRound: Date.now() }
         });
       }
     }
   </script>
 </body>
 </html>
-
