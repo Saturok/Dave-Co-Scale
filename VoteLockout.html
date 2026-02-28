@@ -9,9 +9,7 @@
     .side.left { background: radial-gradient(circle at top left, #635496, #1E3668); border-right: 2px solid #000; }
     .side.right { background: radial-gradient(circle at top right, #4e317a, #1E3668); border-left: 2px solid #000; }
 
-    /* The SVG Icon Box */
     .icon-display { width: 80px; height: 80px; margin-bottom: 20px; fill: rgba(255,255,255,0.8); pointer-events: none; }
-
     h2 { margin: 0 0 20px 0; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); pointer-events: none; text-align: center; padding: 0 10px; }
     .hit-area { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: pointer; }
     .hit-area:active { background: rgba(255,255,255,0.1); }
@@ -55,10 +53,7 @@
   <script type="module">
     import { scaleRef, update, increment, onValue } from './firebase-config.js';
 
-    // The Lockout Check: If they voted before, show the lock screen instantly.
-    if (localStorage.getItem('daveCoVoted') === 'true') {
-      document.getElementById('lockOverlay').style.display = 'flex';
-    }
+    let currentVotingRound = 0;
 
     const iconLibrary = {
       none: '',
@@ -72,21 +67,32 @@
     onValue(scaleRef, (snapshot) => {
       const data = snapshot.val() || {};
       const config = data.config || {};
+      
+      // Update Icons
       document.getElementById('voteIconLeft').innerHTML = iconLibrary[config.iconLeft || 'none'];
       document.getElementById('voteIconRight').innerHTML = iconLibrary[config.iconRight || 'none'];
+
+      // Check Voting Round
+      currentVotingRound = config.votingRound || 0;
+      
+      // If the round they voted in matches the current active round, lock them out. 
+      // If the admin hit reset, the current round will be different, so hide the lock!
+      if (localStorage.getItem('daveCoVotedRound') == currentVotingRound && currentVotingRound !== 0) {
+        document.getElementById('lockOverlay').style.display = 'flex';
+      } else {
+        document.getElementById('lockOverlay').style.display = 'none';
+      }
     });
 
     window.castVote = function(side) {
-      // Secondary check so they can't spam the button before it locks
-      if (localStorage.getItem('daveCoVoted') === 'true') return;
+      if (localStorage.getItem('daveCoVotedRound') == currentVotingRound && currentVotingRound !== 0) return;
 
-      // Register the vote
       const updates = {};
       updates[side] = increment(1);
       update(scaleRef, updates);
 
-      // Lock them out
-      localStorage.setItem('daveCoVoted', 'true');
+      // Save the specific round they voted in
+      localStorage.setItem('daveCoVotedRound', currentVotingRound);
       document.getElementById('lockOverlay').style.display = 'flex';
     };
   </script>
