@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>DAVE-CO INDUSTRIES - ADMIN</title>
+  <title>DAVE-CO - ADMIN</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
     
     :root {
-      --term-color: #8b55d6; 
+      --term-color: #8b55d6 ; 
       --term-glow: rgba(139, 85, 214, 0.5);
       --term-bg: #000;
       --system-ok: #00ff41;
@@ -21,31 +21,39 @@
     h2 { margin-top: 0; font-size: 1.5rem; text-shadow: 0 0 5px var(--term-color); }
     
     /* HEARTBEAT CSS */
-    .status-panel { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--system-ok); font-size: 1.2rem; }
+    .status-panel { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--system-ok); font-size: 1.2rem; text-shadow: 0 0 5px var(--system-ok); }
     .heartbeat { width: 12px; height: 12px; border-radius: 50%; background: var(--system-ok); box-shadow: 0 0 10px var(--system-ok); animation: pulse 1.5s infinite; }
     @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
 
     label { display: block; font-size: 1.5rem; margin-bottom: 10px; }
     input[type=range] { width: 100%; accent-color: var(--term-color); height: 20px; background: #111; border: 1px solid var(--term-color); }
-    input[type=number], select { background: #000; color: var(--term-color); border: 2px solid var(--term-color); font-family: 'VT323', monospace; font-size: 1.5rem; padding: 5px; width: 100%; text-align: center; margin-bottom: 10px; outline: none; }
+    input[type=number], select { background: #000; color: var(--term-color); border: 2px solid var(--term-color); font-family: 'VT323', monospace; font-size: 1.5rem; padding: 5px; width: 100%; text-align: center; margin-bottom: 10px; outline: none; box-shadow: 0 0 5px var(--term-glow); }
+    input[type=number] { width: 80px; }
     
     .value-readout { float: right; }
     .btn-group { display: flex; gap: 10px; margin-top: 10px; }
     
-    button { background: #000; color: var(--term-color); border: 2px solid var(--term-color); font-family: 'VT323', monospace; font-size: 1.5rem; padding: 10px 20px; cursor: pointer; flex: 1; transition: 0.2s; text-transform: uppercase; }
-    button:hover { background: var(--term-color); color: #000; box-shadow: 0 0 15px var(--term-color); }
+    button { background: #000; color: var(--term-color); border: 2px solid var(--term-color); font-family: 'VT323', monospace; font-size: 1.5rem; padding: 10px 20px; cursor: pointer; flex: 1; transition: 0.2s; text-transform: uppercase; text-shadow: 0 0 5px var(--term-color); box-shadow: 0 0 5px var(--term-glow); }
+    button:hover { background: var(--term-color); color: #000; box-shadow: 0 0 15px var(--term-color); text-shadow: none; }
+    button:active { transform: translateY(2px); }
     
-    .btn-fireworks { background: var(--term-color); color: #000; font-weight: bold; font-size: 1.8rem; }
-    .btn-unlock { background: #80a2df; color: #000; border-color: #80a2df; }
-    .btn-danger { border-color: #ff3333; color: #ff3333; }
-    .btn-danger:hover { background: #ff3333; color: #000; }
+    .danger-zone { border-color: #ff3333; color: #ff3333; box-shadow: 0 0 15px rgba(255, 51, 51, 0.3); }
+    .danger-zone h2 { color: #ff3333; border-bottom-color: #ff3333; text-shadow: 0 0 5px #ff3333; }
+    .btn-danger { border-color: #ff3333; color: #ff3333; text-shadow: 0 0 5px #ff3333; box-shadow: 0 0 5px rgba(255, 51, 51, 0.3); }
+    .btn-danger:hover { background: #ff3333; color: #000; box-shadow: 0 0 15px #ff3333; text-shadow: none; }
+    
+    .btn-fireworks { background: var(--term-color); color: #000; text-shadow: none; box-shadow: 0 0 15px var(--term-color); font-weight: bold; font-size: 1.8rem; }
+    .btn-fireworks:hover { background: #fff; color: #000; box-shadow: 0 0 25px #fff; border-color: #fff; }
+
+    .btn-unlock { background: #80a2df; color: #000; border-color: #80a2df; text-shadow: none; box-shadow: 0 0 15px rgba(128, 162, 223, 0.5); }
+    .btn-unlock:hover { background: #fff; border-color: #fff; box-shadow: 0 0 25px #fff; }
     
     .input-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
   </style>
 </head>
 <body>
 
-  <h1>DAVE-CO INDUSTRIES <br> COMMAND CENTER</h1>
+  <h1>DAVE-CO <br> CONTROL CENTRE</h1>
 
   <div class="panel-box">
     <div class="status-panel">
@@ -120,6 +128,30 @@
     </div>
   </div>
 
+  <div class="panel-box">
+    <h2>> PHYSICS PARAMETERS</h2>
+    <div style="margin-bottom: 20px;">
+      <label>SENSITIVITY <span id="disp_sens" class="value-readout">5</span></label>
+      <input type="range" min="1" max="20" id="in_sens" oninput="updateConfig()">
+    </div>
+    <div>
+      <label>MAX TILT ANGLE <span id="disp_tilt" class="value-readout">25</span></label>
+      <input type="range" min="5" max="45" id="in_tilt" oninput="updateConfig()">
+    </div>
+  </div>
+
+  <div class="panel-box">
+    <h2>> BACKGROUND PETALS</h2>
+    <div style="margin-bottom: 20px;">
+      <label>SPAWN RATE (ms) <span id="disp_spawn" class="value-readout">1200</span></label>
+      <input type="range" min="200" max="4000" step="100" id="in_spawn" oninput="updateConfig()">
+    </div>
+    <div>
+      <label>GRAVITY SPEED <span id="disp_fall" class="value-readout">15</span></label>
+      <input type="range" min="5" max="40" id="in_fall" oninput="updateConfig()">
+    </div>
+  </div>
+
   <div class="panel-box danger-zone">
     <h2>> DANGER ZONE</h2>
     <button class="btn-danger" onclick="nukeIt()">INITIATE RESET PROTOCOL</button>
@@ -137,7 +169,17 @@
       lastActive = now;
 
       const data = snapshot.val() || {};
-      const config = data.config || {};
+      const config = data.config || { sensitivity: 5, maxTilt: 25, petalSpawn: 1200, petalFall: 15, iconLeft: 'none', iconRight: 'none' };
+
+      // Update Sliders
+      document.getElementById('in_sens').value = config.sensitivity || 5;
+      document.getElementById('disp_sens').innerText = config.sensitivity || 5;
+      document.getElementById('in_tilt').value = config.maxTilt || 25;
+      document.getElementById('disp_tilt').innerText = config.maxTilt || 25;
+      document.getElementById('in_spawn').value = config.petalSpawn || 1200;
+      document.getElementById('disp_spawn').innerText = config.petalSpawn || 1200;
+      document.getElementById('in_fall').value = config.petalFall || 15;
+      document.getElementById('disp_fall').innerText = config.petalFall || 15;
 
       document.getElementById('sel_iconLeft').value = config.iconLeft || 'none';
       document.getElementById('sel_iconRight').value = config.iconRight || 'none';
@@ -147,6 +189,10 @@
 
     window.updateConfig = function() {
       update(scaleRef, {
+        "config/sensitivity": parseInt(document.getElementById('in_sens').value),
+        "config/maxTilt": parseInt(document.getElementById('in_tilt').value),
+        "config/petalSpawn": parseInt(document.getElementById('in_spawn').value),
+        "config/petalFall": parseInt(document.getElementById('in_fall').value),
         "config/iconLeft": document.getElementById('sel_iconLeft').value,
         "config/iconRight": document.getElementById('sel_iconRight').value
       });
@@ -171,7 +217,7 @@
       if(confirm("CONFIRM SYSTEM WIPE?")) {
         set(scaleRef, { 
           left: 0, right: 0,
-          config: { sensitivity: 5, maxTilt: 25, iconLeft: 'none', iconRight: 'none', fireworks: 0, votingRound: Date.now() }
+          config: { sensitivity: 5, maxTilt: 25, petalSpawn: 1200, petalFall: 15, iconLeft: 'none', iconRight: 'none', fireworks: 0, votingRound: Date.now() }
         });
       }
     }
