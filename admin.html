@@ -7,7 +7,7 @@
     @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
     
     :root {
-      --term-color: #8b55d6 ; 
+      --term-color: #8b55d6; 
       --term-glow: rgba(139, 85, 214, 0.5);
       --term-bg: #000;
       --system-ok: #00ff41;
@@ -53,7 +53,7 @@
 </head>
 <body>
 
-  <h1>DAVE-CO <br> CONTROL CENTRE</h1>
+  <h1>DAVE-CO <br> CONTROL CENTER</h1>
 
   <div class="panel-box">
     <div class="status-panel">
@@ -126,6 +126,10 @@
         </select>
       </div>
     </div>
+    <div style="margin-top: 20px;">
+      <label>WATERMARK OPACITY <span id="disp_opacity" class="value-readout">15%</span></label>
+      <input type="range" min="0" max="100" id="in_opacity" oninput="updateConfig()">
+    </div>
   </div>
 
   <div class="panel-box">
@@ -169,7 +173,7 @@
       lastActive = now;
 
       const data = snapshot.val() || {};
-      const config = data.config || { sensitivity: 5, maxTilt: 25, petalSpawn: 1200, petalFall: 15, iconLeft: 'none', iconRight: 'none' };
+      const config = data.config || { sensitivity: 5, maxTilt: 25, petalSpawn: 1200, petalFall: 15, iconLeft: 'none', iconRight: 'none', iconOpacity: 15 };
 
       // Update Sliders
       document.getElementById('in_sens').value = config.sensitivity || 5;
@@ -180,6 +184,10 @@
       document.getElementById('disp_spawn').innerText = config.petalSpawn || 1200;
       document.getElementById('in_fall').value = config.petalFall || 15;
       document.getElementById('disp_fall').innerText = config.petalFall || 15;
+      
+      // Update Opacity
+      document.getElementById('in_opacity').value = config.iconOpacity ?? 15;
+      document.getElementById('disp_opacity').innerText = (config.iconOpacity ?? 15) + '%';
 
       document.getElementById('sel_iconLeft').value = config.iconLeft || 'none';
       document.getElementById('sel_iconRight').value = config.iconRight || 'none';
@@ -194,7 +202,8 @@
         "config/petalSpawn": parseInt(document.getElementById('in_spawn').value),
         "config/petalFall": parseInt(document.getElementById('in_fall').value),
         "config/iconLeft": document.getElementById('sel_iconLeft').value,
-        "config/iconRight": document.getElementById('sel_iconRight').value
+        "config/iconRight": document.getElementById('sel_iconRight').value,
+        "config/iconOpacity": parseInt(document.getElementById('in_opacity').value)
       });
     }
 
@@ -217,7 +226,7 @@
       if(confirm("CONFIRM SYSTEM WIPE?")) {
         set(scaleRef, { 
           left: 0, right: 0,
-          config: { sensitivity: 5, maxTilt: 25, petalSpawn: 1200, petalFall: 15, iconLeft: 'none', iconRight: 'none', fireworks: 0, votingRound: Date.now() }
+          config: { sensitivity: 5, maxTilt: 25, petalSpawn: 1200, petalFall: 15, iconLeft: 'none', iconRight: 'none', iconOpacity: 15, fireworks: 0, votingRound: Date.now() }
         });
       }
     }
