@@ -24,10 +24,12 @@
 
     .spark { position: absolute; width: 8px; height: 8px; border-radius: 50%; pointer-events: none; z-index: 50; box-shadow: 0 0 10px currentColor; }
 
-    /* RE-CENTERED SCALE WRAPPER */
+    /* The wrapper will now be dynamically scaled via JavaScript */
     .scale-wrapper { 
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+      position: absolute; top: 50%; left: 50%; 
+      transform: translate(-50%, -50%) scale(1); /* Default scale */
       width: 600px; height: 600px; z-index: 10; 
+      transition: transform 0.3s ease-out; /* Smooth zooming */
     }
     
     .stand { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 200px; height: 350px; }
@@ -67,7 +69,7 @@
 
   <div id="petal-container"></div>
 
-  <div class="scale-wrapper">
+  <div class="scale-wrapper" id="masterScaleWrapper">
     <div class="stand">
       <svg viewBox="0 0 100 350" preserveAspectRatio="none">
         <path d="M 10 340 Q 50 320 90 340 L 90 350 L 10 350 Z" fill="var(--scale-dark)"/>
@@ -130,6 +132,7 @@
     const panRight = document.getElementById('panRight');
     const scoreLeft = document.getElementById('scoreLeft');
     const scoreRight = document.getElementById('scoreRight');
+    const masterWrapper = document.getElementById('masterScaleWrapper');
     
     const iconLibrary = {
       none: '',
@@ -140,7 +143,7 @@
       crane: `<svg viewBox="0 0 100 100"><rect x="20" y="10" width="12" height="90" fill="var(--wisteria-1)"/><polygon points="10,10 90,10 80,25 32,25" fill="var(--wisteria-1)"/><line x1="75" y1="25" x2="75" y2="60" stroke="var(--wisteria-1)" stroke-width="3"/><path d="M75 60 v10 a 8 8 0 0 0 16 0" fill="none" stroke="var(--wisteria-1)" stroke-width="4"/></svg>`
     };
 
-    let currentConfig = { sensitivity: 5, maxTilt: 25, petalSpawn: 1200, petalFall: 15, iconLeft: 'none', iconRight: 'none', iconOpacity: 15, fireworks: 0 };
+    let currentConfig = { sensitivity: 5, maxTilt: 25, petalSpawn: 1200, petalFall: 15, iconLeft: 'none', iconRight: 'none', iconOpacity: 15, scaleZoom: 100, fireworks: 0 };
     let localFireworksState = 0;
 
     onValue(scaleRef, (snapshot) => {
@@ -160,6 +163,12 @@
       const opacityVal = (currentConfig.iconOpacity ?? 15) / 100;
       document.getElementById('iconLeft').style.opacity = opacityVal;
       document.getElementById('iconRight').style.opacity = opacityVal;
+
+      // APPLY THE GLOBAL ZOOM
+      const zoomVal = (currentConfig.scaleZoom ?? 100) / 100;
+      if (masterWrapper) {
+        masterWrapper.style.transform = `translate(-50%, -50%) scale(${zoomVal})`;
+      }
 
       updateView(data);
     });
