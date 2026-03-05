@@ -20,7 +20,6 @@
     .panel-box { border: 2px solid var(--term-color); padding: 15px; margin-bottom: 20px; box-shadow: 0 0 15px var(--term-glow); background: rgba(20, 10, 30, 0.8); position: relative; z-index: 10;}
     h2 { margin-top: 0; font-size: 1.5rem; text-shadow: 0 0 5px var(--term-color); }
     
-    /* HEARTBEAT CSS */
     .status-panel { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; color: var(--system-ok); font-size: 1.2rem; text-shadow: 0 0 5px var(--system-ok); }
     .heartbeat { width: 12px; height: 12px; border-radius: 50%; background: var(--system-ok); box-shadow: 0 0 10px var(--system-ok); animation: pulse 1.5s infinite; }
     @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
@@ -126,9 +125,14 @@
         </select>
       </div>
     </div>
+    
     <div style="margin-top: 20px;">
       <label>WATERMARK OPACITY <span id="disp_opacity" class="value-readout">15%</span></label>
       <input type="range" min="0" max="100" id="in_opacity" oninput="updateConfig()">
+    </div>
+    <div style="margin-top: 20px;">
+      <label>GLOBAL SCALE ZOOM <span id="disp_zoom" class="value-readout">100%</span></label>
+      <input type="range" min="50" max="200" step="5" id="in_zoom" oninput="updateConfig()">
     </div>
   </div>
 
@@ -167,15 +171,13 @@
     let lastActive = Date.now();
 
     onValue(scaleRef, (snapshot) => {
-      // PING CALC
       const now = Date.now();
       document.getElementById('ping-ms').innerText = now - lastActive > 2000 ? '20' : now - lastActive;
       lastActive = now;
 
       const data = snapshot.val() || {};
-      const config = data.config || { sensitivity: 5, maxTilt: 25, petalSpawn: 1200, petalFall: 15, iconLeft: 'none', iconRight: 'none', iconOpacity: 15 };
+      const config = data.config || { sensitivity: 5, maxTilt: 25, petalSpawn: 1200, petalFall: 15, iconLeft: 'none', iconRight: 'none', iconOpacity: 15, scaleZoom: 100 };
 
-      // Update Sliders
       document.getElementById('in_sens').value = config.sensitivity || 5;
       document.getElementById('disp_sens').innerText = config.sensitivity || 5;
       document.getElementById('in_tilt').value = config.maxTilt || 25;
@@ -185,9 +187,12 @@
       document.getElementById('in_fall').value = config.petalFall || 15;
       document.getElementById('disp_fall').innerText = config.petalFall || 15;
       
-      // Update Opacity
       document.getElementById('in_opacity').value = config.iconOpacity ?? 15;
       document.getElementById('disp_opacity').innerText = (config.iconOpacity ?? 15) + '%';
+
+      // Update Zoom Slider
+      document.getElementById('in_zoom').value = config.scaleZoom ?? 100;
+      document.getElementById('disp_zoom').innerText = (config.scaleZoom ?? 100) + '%';
 
       document.getElementById('sel_iconLeft').value = config.iconLeft || 'none';
       document.getElementById('sel_iconRight').value = config.iconRight || 'none';
@@ -203,7 +208,8 @@
         "config/petalFall": parseInt(document.getElementById('in_fall').value),
         "config/iconLeft": document.getElementById('sel_iconLeft').value,
         "config/iconRight": document.getElementById('sel_iconRight').value,
-        "config/iconOpacity": parseInt(document.getElementById('in_opacity').value)
+        "config/iconOpacity": parseInt(document.getElementById('in_opacity').value),
+        "config/scaleZoom": parseInt(document.getElementById('in_zoom').value) // Captures Zoom setting
       });
     }
 
@@ -219,14 +225,13 @@
     }
 
     window.launchFireworks = function() { update(scaleRef, { "config/fireworks": Date.now() }); }
-    
     window.unlockVoting = function() { update(scaleRef, { "config/votingRound": Date.now() }); }
 
     window.nukeIt = function() {
       if(confirm("CONFIRM SYSTEM WIPE?")) {
         set(scaleRef, { 
           left: 0, right: 0,
-          config: { sensitivity: 5, maxTilt: 25, petalSpawn: 1200, petalFall: 15, iconLeft: 'none', iconRight: 'none', iconOpacity: 15, fireworks: 0, votingRound: Date.now() }
+          config: { sensitivity: 5, maxTilt: 25, petalSpawn: 1200, petalFall: 15, iconLeft: 'none', iconRight: 'none', iconOpacity: 15, scaleZoom: 100, fireworks: 0, votingRound: Date.now() }
         });
       }
     }
