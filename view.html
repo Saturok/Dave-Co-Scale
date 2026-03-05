@@ -24,12 +24,15 @@
 
     .spark { position: absolute; width: 8px; height: 8px; border-radius: 50%; pointer-events: none; z-index: 50; box-shadow: 0 0 10px currentColor; }
 
-    /* The wrapper will now be dynamically scaled via JavaScript */
+    /* FIXED: Anchored to the bottom so it grows UPWARDS when zoomed */
     .scale-wrapper { 
-      position: absolute; top: 50%; left: 50%; 
-      transform: translate(-50%, -50%) scale(1); /* Default scale */
+      position: absolute; 
+      bottom: 5vh; 
+      left: 50%; 
+      transform-origin: bottom center; 
+      transform: translateX(-50%) scale(1);
       width: 600px; height: 600px; z-index: 10; 
-      transition: transform 0.3s ease-out; /* Smooth zooming */
+      transition: transform 0.3s ease-out; 
     }
     
     .stand { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 200px; height: 350px; }
@@ -41,7 +44,9 @@
     .pan-assembly { position: absolute; top: 0; width: 0; height: 0; transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
     .pan-assembly.left { left: -260px; } 
     .pan-assembly.right { left: 260px; }
-    .pan-svg-container { position: absolute; top: 0; left: -100px; width: 200px; height: 250px; }
+    
+    /* Z-Index logic updated to sandwich the watermarks */
+    .pan-svg-container { position: absolute; top: 0; left: -100px; width: 200px; height: 250px; z-index: 5; }
 
     .content-box { 
       position: absolute; top: 0px; left: -100px; width: 200px; height: 250px; 
@@ -49,20 +54,21 @@
       padding-bottom: 30px; box-sizing: border-box;
     }
     
+    /* Removed from content-box, now locked to the background */
     .item-icon { 
       position: absolute; 
       width: 150px; 
       height: 150px; 
-      top: 45%; 
-      left: 50%; 
+      top: 110px; 
+      left: 0; 
       transform: translate(-50%, -50%); 
       opacity: 0.15; 
       pointer-events: none; 
       z-index: 0; 
     }
 
-    .score { position: relative; z-index: 10; font-size: 3.5rem; font-weight: bold; line-height: 1; color: white; text-shadow: 0 4px 10px rgba(0,0,0,0.8); }
-    .label { position: relative; z-index: 10; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: white; font-weight: bold; text-align: center; line-height: 1.2; margin-top: 5px; text-shadow: 0 3px 6px rgba(0,0,0,0.9); }
+    .score { position: relative; font-size: 3.5rem; font-weight: bold; line-height: 1; color: white; text-shadow: 0 4px 10px rgba(0,0,0,0.8); }
+    .label { position: relative; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: white; font-weight: bold; text-align: center; line-height: 1.2; margin-top: 5px; text-shadow: 0 3px 6px rgba(0,0,0,0.9); }
   </style>
 </head>
 <body>
@@ -89,6 +95,7 @@
       </div>
       
       <div class="pan-assembly left" id="panLeft">
+        <div class="item-icon" id="iconLeft"></div>
         <div class="pan-svg-container">
           <svg viewBox="0 0 200 250">
             <line x1="100" y1="0" x2="30" y2="180" stroke="var(--scale-color)" stroke-width="3"/>
@@ -99,13 +106,13 @@
           </svg>
         </div>
         <div class="content-box">
-          <div class="item-icon" id="iconLeft"></div>
           <div class="score" id="scoreLeft">0</div>
           <div class="label">Safety, Respect<br>& Culture</div>
         </div>
       </div>
 
       <div class="pan-assembly right" id="panRight">
+        <div class="item-icon" id="iconRight"></div>
         <div class="pan-svg-container">
           <svg viewBox="0 0 200 250">
             <line x1="100" y1="0" x2="30" y2="180" stroke="var(--scale-color)" stroke-width="3"/>
@@ -116,7 +123,6 @@
           </svg>
         </div>
         <div class="content-box">
-          <div class="item-icon" id="iconRight"></div>
           <div class="score" id="scoreRight">0</div>
           <div class="label">Leadership, Progression<br>& Power</div>
         </div>
@@ -164,10 +170,10 @@
       document.getElementById('iconLeft').style.opacity = opacityVal;
       document.getElementById('iconRight').style.opacity = opacityVal;
 
-      // APPLY THE GLOBAL ZOOM
+      // FIXED ZOOM TRANSLATION: Only adjust X axis, allow it to grow upwards from the bottom origin
       const zoomVal = (currentConfig.scaleZoom ?? 100) / 100;
       if (masterWrapper) {
-        masterWrapper.style.transform = `translate(-50%, -50%) scale(${zoomVal})`;
+        masterWrapper.style.transform = `translateX(-50%) scale(${zoomVal})`;
       }
 
       updateView(data);
