@@ -126,6 +126,24 @@
 
     <div class="panel-box">
       <h2>> VISUAL REFERENCES</h2>
+      
+      <!-- NEW GLOBAL COLORS ROW -->
+      <div class="input-row" style="margin-bottom: 20px;">
+        <div style="flex:1; padding-right:10px;">
+          <label style="font-size: 1.2rem;">SCALE COLOR:</label>
+          <input type="color" id="in_scaleColor" value="#8b55d6" oninput="updateConfig()">
+        </div>
+        <div style="flex:1; padding-right:10px;">
+          <label style="font-size: 1.2rem;">BG COLOR:</label>
+          <input type="color" id="in_bgColor" value="#120e2b" oninput="updateConfig()">
+        </div>
+        <div style="flex:1;">
+          <label style="font-size: 1.2rem;">LEAVES COLOR:</label>
+          <input type="color" id="in_leafColor" value="#e6ddf8" oninput="updateConfig()">
+        </div>
+      </div>
+
+      <!-- EXISTING BRAND COLORS ROW -->
       <div class="input-row">
         <div style="flex:1; padding-right:10px;">
           <label>LEFT BRAND COLOR:</label>
@@ -280,6 +298,17 @@
             document.getElementById('in_colorRight').value = config.colorRight || '#F09222';
         }
 
+        // NEW: Load custom scale, background, and leaf colors from DB
+        if (document.activeElement !== document.getElementById('in_scaleColor')) {
+            document.getElementById('in_scaleColor').value = config.scaleColor || '#8b55d6';
+        }
+        if (document.activeElement !== document.getElementById('in_bgColor')) {
+            document.getElementById('in_bgColor').value = config.bgColor || '#120e2b';
+        }
+        if (document.activeElement !== document.getElementById('in_leafColor')) {
+            document.getElementById('in_leafColor').value = config.leafColor || '#e6ddf8';
+        }
+
         if (document.activeElement !== document.getElementById('in_labelLeft')) {
             document.getElementById('in_labelLeft').value = config.labelLeft || '';
         }
@@ -304,7 +333,12 @@
         "config/labelLeft": document.getElementById('in_labelLeft').value,
         "config/labelRight": document.getElementById('in_labelRight').value,
         "config/colorLeft": document.getElementById('in_colorLeft').value,
-        "config/colorRight": document.getElementById('in_colorRight').value
+        "config/colorRight": document.getElementById('in_colorRight').value,
+        
+        // NEW: Push custom scale, background, and leaf colors to DB
+        "config/scaleColor": document.getElementById('in_scaleColor').value,
+        "config/bgColor": document.getElementById('in_bgColor').value,
+        "config/leafColor": document.getElementById('in_leafColor').value
       });
     }
 
