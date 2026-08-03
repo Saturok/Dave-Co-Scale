@@ -170,6 +170,8 @@
           // INJECT DYNAMIC COLORS
           rootStyles.setProperty('--color-left', currentConfig.colorLeft || '#635496');
           rootStyles.setProperty('--color-right', currentConfig.colorRight || '#F09222');
+          rootStyles.setProperty('--scale-color', currentConfig.scaleColor || '#8b55d6');
+          rootStyles.setProperty('--bg-dark', currentConfig.bgColor || '#120e2b');
         }
         
         document.getElementById('iconLeft').innerHTML = iconLibrary[currentConfig.iconLeft || 'none'];
@@ -248,7 +250,6 @@
     }
 
     const petalContainer = document.getElementById('petal-container');
-    const colors = ['#e6ddf8', '#80a2df', '#635496', '#4e317a', '#171e60']; 
     let petalTimer;
 
     function createPetal() {
@@ -256,7 +257,10 @@
       const petal = document.createElement('div');
       petal.classList.add('petal');
       petal.style.left = Math.random() * 100 + 'vw';
-      petal.style.background = colors[Math.floor(Math.random() * colors.length)];
+      
+      // Dynamic leaf color injection
+      petal.style.background = currentConfig.leafColor || '#e6ddf8';
+      
       const size = Math.random() * 12 + 8; 
       petal.style.width = `${size}px`; petal.style.height = `${size}px`;
       const fallBase = currentConfig.petalFall || 15;
